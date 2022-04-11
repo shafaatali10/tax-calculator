@@ -39,17 +39,79 @@ jobs:
         run: mvn -B package --file pom.xml
 
 
-  publish-job:
+  deploy:
+    name: Build image
     runs-on: ubuntu-latest
-    needs: [build_and_test]
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - name: Check out code
+        uses: actions/checkout@v2
+
+#      - name: Install kubectl
+#        uses: azure/setup-kubectl@v1
+#        with:
+#          version: 'v1.21.3'
+#        id: install
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          java-version: 1.8
-      - run: mvn -B package --file pom.xml -DskipTests
-      - run: mkdir staging && cp target/*jar-with-dependencies.jar staging
-      - uses: actions/upload-artifact@v1
-        with:
-          name: Package
-          path: staging
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+#      - name: Load secrets and save to app.env
+#        run: aws secretsmanager get-secret-value --secret-id simple_bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: tax-calculator
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+
+#      - name: Update kube config
+#        run: aws eks update-kubeconfig --name simple-bank --region eu-west-1
+#
+#      - name: Deploy image to Amazon EKS
+#        run: |
+#          kubectl apply -f eks/aws-auth.yaml
+#          kubectl apply -f eks/deployment.yaml
+#          kubectl apply -f eks/service.yaml
+#          kubectl apply -f eks/issuer.yaml
+#          kubectl apply -f eks/ingress.yaml
+
+#  publish-job:
+#    runs-on: ubuntu-latest
+#    needs: [build_and_test]
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: actions/setup-java@v1
+#        with:
+#          java-version: 1.8
+#      - run: mvn -B package --file pom.xml -DskipTests
+#      - run: mkdir app && cp target/*.jar app
+#      - uses: actions/upload-artifact@v1
+#        with:
+#          name: Package
+#          path: app
+#
+#  build-docker-image:
+#    name: Publish to ECR
+#    runs-on: ubuntu-latest
+#    needs: [build_and_test]
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Login to ECR
+#        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+#      - name: Build Container image
+#        run: docker build -t ${{ secrets.DOCKER_REPO }}:latest .
+#      - name: Publish Docker image
+#        run: docker push ${{ secrets.DOCKER_REPO }}
