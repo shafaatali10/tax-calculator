@@ -21,8 +21,8 @@ public class Employee implements Serializable {
     private Integer annualSalary;
 
     @NotNull
-    @Min(value = 0)
-    @Max(value = 11)
+    @Min(value = 1)
+    @Max(value = 12)
     private Integer paymentMonth;
 
     @DecimalMin(value = "0")

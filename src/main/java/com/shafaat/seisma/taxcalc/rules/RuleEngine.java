@@ -31,4 +31,16 @@ public class RuleEngine {
         return this;
     }
 
+    public RuleEngine clearRules() {
+        rules = new ArrayList<>();
+        return this;
+    }
+
+    public int getRulesCount(){
+        if(rules != null){
+            return rules.size();
+        }
+        return 0;
+    }
+
 }

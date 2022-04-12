@@ -79,4 +79,11 @@ public class RuleService {
 
     }
 
+    public BigDecimal calculateIncomeTaxForMonth(Integer annualSalary, TaxSlab taxSlab){
+        return BigDecimal.valueOf(annualSalary - (taxSlab.getIncomeStart() - 1))
+                .multiply(taxSlab.getTaxOnEachDollar())
+                .add(BigDecimal.valueOf(taxSlab.getSlabAddition()))
+                .divide(BigDecimal.valueOf(12), 0, RoundingMode.HALF_UP);
+    }
+
 }

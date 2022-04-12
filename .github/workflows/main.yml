@@ -70,6 +70,7 @@ jobs:
 #        run: aws secretsmanager get-secret-value --secret-id simple_bank --query SecretString --output text | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > app.env
 
       - name: Build, tag, and push image to Amazon ECR
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: tax-calculator
@@ -77,6 +78,27 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+          
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition my-task-definition-family --query taskDefinition > task-definition.json
+
+      - name: Refresh Image inside Task Definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: TaxCalcAppContainer
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+#          service: my-service
+          cluster: TaxCalcCluster
+          wait-for-service-stability: true
 
 #      - name: Update kube config
 #        run: aws eks update-kubeconfig --name simple-bank --region eu-west-1
