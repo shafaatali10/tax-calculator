@@ -90,7 +90,7 @@ jobs:
         with:
           task-definition: task-definition.json
           container-name: TaxCalcAppContainer
-          image: $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          image: 466334363265.dkr.ecr.us-east-1.amazonaws.com/tax-calculator:latest
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
