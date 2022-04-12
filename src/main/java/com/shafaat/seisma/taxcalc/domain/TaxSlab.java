@@ -14,7 +14,7 @@ public class TaxSlab implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Long id; // Currently not in use.
 
     @Column(name = "income_start")
     private Integer incomeStart;

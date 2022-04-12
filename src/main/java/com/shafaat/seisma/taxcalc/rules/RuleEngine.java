@@ -25,14 +25,8 @@ public class RuleEngine {
 
     }
 
-
     public RuleEngine registerRule(ITaxRule<Employee, PaySlip> rule) {
         rules.add(rule);
-        return this;
-    }
-
-    public RuleEngine clearRules() {
-        rules = new ArrayList<>();
         return this;
     }
 

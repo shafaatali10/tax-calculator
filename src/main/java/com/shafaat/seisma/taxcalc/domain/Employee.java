@@ -12,7 +12,7 @@ public class Employee implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @JsonIgnore
-    private Long id;
+    private Long id; // Currently not in use.
     private String firstName;
     private String lastName;
 
