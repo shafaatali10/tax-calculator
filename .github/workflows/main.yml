@@ -82,7 +82,7 @@ jobs:
 
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition my-task-definition-family --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition --task-definition ECSDemo1 --query taskDefinition > task-definition.json
 
       - name: Refresh Image inside Task Definition
         id: task-def
