@@ -13,6 +13,16 @@
 - All rules are loaded during the start of the application
 - No other domain classes are persisted in DB
 
+H2 can be accessed as below:
+
+```
+/h2-console
+
+URL: jdbc:h2:mem:sa
+username: sa
+password: 
+```
+
 ## Running application locally
 
 - Run App.java and it runs on port 8080
