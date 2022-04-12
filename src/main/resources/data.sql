@@ -1,3 +1,5 @@
+DELETE FROM tax_rule;
+
 INSERT INTO tax_rule(id, income_start, income_end, tax_on_each_dollar, slab_addition, is_active)
 	VALUES (1, 0,18200, 0, 0, true);
 
